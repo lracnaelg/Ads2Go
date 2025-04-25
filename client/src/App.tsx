@@ -18,7 +18,8 @@ import Settings from './components/Settings';
 import AdminDashboard from './components/ADMIN/AdminDashboard';
 import ManageUsers from './components/ADMIN/ManageUsers';
 import SiteSettings from './components/ADMIN/SiteSettings';
-
+// Import protected route component
+import { useLocation } from 'react-router-dom';
 
 
 
@@ -45,12 +46,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, logout } = useAuth();
+  const location = useLocation();
+
+  // ❌ Routes where the navbar should NOT be visible
+  const hideNavbarOnRoutes = ['/login', '/register', '/verify-email'];
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-primary text-black dark:text-white transition-colors duration-300">
 
-      {/* ✅ Navbar disappears immediately when logged out */}
-      {isAuthenticated && <Navbar />}
+      {/* ✅ Conditionally hide Navbar based on route */}
+      {isAuthenticated && !hideNavbarOnRoutes.includes(location.pathname) && <Navbar />}
 
       <ThemeToggle />
 
@@ -62,7 +67,7 @@ const AppContent: React.FC = () => {
         {/* Email Verification Route */}
         <Route 
           path="/verify-email" 
-          element={<ProtectedRoute><VerifyEmail /></ProtectedRoute>} 
+          element={<VerifyEmail />} 
         />
 
         {/* Protected Routes */}
@@ -80,20 +85,18 @@ const AppContent: React.FC = () => {
         />
 
         {/* ✅ Admin Routes */}
-<Route 
-  path="/admin" 
-  element={<AdminRoute><AdminDashboard /></AdminRoute>} 
-/>
-<Route 
-  path="/admin/users" 
-  element={<AdminRoute><ManageUsers /></AdminRoute>} 
-/>
-<Route 
-  path="/admin/settings" 
-  element={<AdminRoute><SiteSettings /></AdminRoute>} 
-/>
-
-       
+        <Route 
+          path="/admin" 
+          element={<AdminRoute><AdminDashboard /></AdminRoute>} 
+        />
+        <Route 
+          path="/admin/users" 
+          element={<AdminRoute><ManageUsers /></AdminRoute>} 
+        />
+        <Route 
+          path="/admin/settings" 
+          element={<AdminRoute><SiteSettings /></AdminRoute>} 
+        />
 
         {/* Default Route */}
         <Route path="/" element={<Navigate to="/home" replace />} />
@@ -104,6 +107,7 @@ const AppContent: React.FC = () => {
     </div>
   );
 };
+
 
 const App: React.FC = () => {
   const navigate = useNavigate();
